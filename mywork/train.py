@@ -4,11 +4,15 @@ import torch.optim as optim
 import numpy as np
 import Model
 import BotEvironment
-
+import random
+#
+# random.seed(42)
+# np.random.seed(42)
+# torch.manual_seed(42)
 
 # 定义Agent类
 class Agent:
-    def __init__(self, state_size, action_size, lr=0.00005, gamma=0.99, epsilon=1.0, epsilon_decay=0.999,
+    def __init__(self, state_size, action_size, lr=0.001, gamma=0.99, epsilon=1.0, epsilon_decay=0.999,
                  epsilon_min=0.01):
         self.state_size = state_size
         self.action_size = action_size
@@ -64,7 +68,7 @@ class Agent:
 
 
 # 训练Agent
-def train_agent(agent, environment, num_episodes=100000):
+def train_agent(agent, environment, num_episodes=10000):
     #epoch
     for episode in range(num_episodes):
         state = environment.reset()
@@ -73,10 +77,10 @@ def train_agent(agent, environment, num_episodes=100000):
         loses = 0
         #惩罚过多就直接进入下一个循环
         while not done:
-            actions = agent.choose_action(state)
+            actions = agent.choose_action(state+[environment.step_count])
             next_state, reward = environment.step(actions)
             total_reward += reward
-            lose = agent.train((state, [actions], [reward], next_state, [environment.check_stop()]))
+            lose = agent.train((state+[environment.step_count-1], [actions], [reward], next_state+[environment.step_count], [environment.check_stop()]))
             loses += lose
             state = next_state
             if environment.check_stop():
@@ -88,7 +92,7 @@ def train_agent(agent, environment, num_episodes=100000):
 
 if __name__ == '__main__':
     env = BotEvironment.Environment()
-    agent = Agent(state_size=5, action_size=25)
+    agent = Agent(state_size=6, action_size=25)
 
     # 训练Agent
     train_agent(agent, env)

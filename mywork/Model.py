@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
+import random
 
-
+# random.seed(42)
+# torch.manual_seed(42)
 class DQN(nn.Module):
     def __init__(self, input_size, output_size):
         super(DQN, self).__init__()
