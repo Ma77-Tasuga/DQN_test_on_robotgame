@@ -4,9 +4,12 @@ import torch.optim as optim
 import numpy as np
 import Model
 import BotEvironment
+
+
 # 定义Agent类
 class Agent:
-    def __init__(self, state_size, action_size, lr=0.00001, gamma=0.99, epsilon=1.0, epsilon_decay=0.999, epsilon_min=0.01):
+    def __init__(self, state_size, action_size, lr=0.00005, gamma=0.99, epsilon=1.0, epsilon_decay=0.999,
+                 epsilon_min=0.01):
         self.state_size = state_size
         self.action_size = action_size
         self.lr = lr
@@ -35,7 +38,6 @@ class Agent:
         next_states = torch.FloatTensor(next_states)
         done = torch.BoolTensor(done)
 
-
         q_values = self.policy_net(states)
         # q_values = self.policy_net(states)
         # print(q_values.shape,q_values.size())
@@ -45,7 +47,7 @@ class Agent:
             next_q_values = self.target_net(next_states).max(0)[0]
 
         #这里要设置一下最后一步怎么办
-        target_q_values = rewards + (1-done.float())*self.gamma * next_q_values
+        target_q_values = rewards + (1 - done.float()) * self.gamma * next_q_values
 
         loss = self.loss_fn(q_values[actions], target_q_values.detach())
         self.optimizer.zero_grad()
@@ -59,7 +61,6 @@ class Agent:
 
     def update_target_net(self):
         self.target_net.load_state_dict(self.policy_net.state_dict())
-
 
 
 # 训练Agent
@@ -82,10 +83,10 @@ def train_agent(agent, environment, num_episodes=100000):
                 print(environment.bot_state)
                 done = True
         agent.update_target_net()
-        print("Episode:", episode, "Total Reward:", total_reward,"loses:",lose)
+        print("Episode:", episode, "Total Reward:", total_reward, "loses:", lose)
+
 
 if __name__ == '__main__':
-
     env = BotEvironment.Environment()
     agent = Agent(state_size=5, action_size=25)
 
