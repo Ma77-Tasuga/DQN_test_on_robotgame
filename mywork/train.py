@@ -77,10 +77,10 @@ def train_agent(agent, environment, num_episodes=10000):
         loses = 0
         #惩罚过多就直接进入下一个循环
         while not done:
-            actions = agent.choose_action(state+[environment.step_count])
+            actions = agent.choose_action(state+[environment.step_count]+environment.bot_state[-1])
             next_state, reward = environment.step(actions)
             total_reward += reward
-            lose = agent.train((state+[environment.step_count-1], [actions], [reward], next_state+[environment.step_count], [environment.check_stop()]))
+            lose = agent.train((state+[environment.step_count-1]+environment.bot_state[-2], [actions], [reward], next_state+[environment.step_count]+environment.bot_state[-1], [environment.check_stop()]))
             loses += lose
             state = next_state
             if environment.check_stop():
@@ -92,7 +92,7 @@ def train_agent(agent, environment, num_episodes=10000):
 
 if __name__ == '__main__':
     env = BotEvironment.Environment()
-    agent = Agent(state_size=6, action_size=25)
+    agent = Agent(state_size=8, action_size=25)
 
     # 训练Agent
     train_agent(agent, env)

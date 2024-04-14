@@ -30,16 +30,16 @@ action2positioon = {
 class Environment:
     def __init__(self, num_steps=15):
         self.num_steps = num_steps
-        self.step_count = 0
-        self.state = [0 for _ in range(5)]  #第一步的格子情况
-        self.bot_state = [[0, 1]]  # 初始状态：两个机器人的位置
+        self.step_count = 1
+        self.state = [0, 0, 0, 0, 1]  #第一步的格子情况
+        self.bot_state = [[0, 3]]  # 初始状态：两个机器人的位置
         self.obstacles = {1: [4], 2: [1, 4], 3: [1, 2], 4: [4], 5: [0, 3], 6: [1, 4], 7: [1, 2], 8: [3], 9: [0, 2],
-                          10: [4], 11: [0, 2], 12: [1, 4], 13: [1, 2], 14: [4], 15: [0, 2]}  # 障碍物的位置
+                          10: [4], 11: [0, 2], 12: [1, 4], 13: [1, 2], 14: [4], 15: [0, 2]}  # 障碍物方框
 
     def reset(self):
-        self.bot_state = [[0, 1]]
-        self.step_count = 0
-        self.state = [0 for _ in range(5)]
+        self.bot_state = [[0, 3]]
+        self.step_count = 1
+        self.state = [0, 0, 0, 0, 1]
         return self.state
 
     def check_stop(self):
@@ -76,7 +76,6 @@ class Environment:
             rewards -= 10
             ckeck_obstacles = True
 
-        # 应该每个分开计算
         if not ckeck_obstacles:
             rewards += 8
 
