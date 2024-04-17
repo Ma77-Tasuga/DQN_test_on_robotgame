@@ -5,10 +5,12 @@ import numpy as np
 import Model
 import BotEvironment
 import random
-#
-# random.seed(42)
-# np.random.seed(42)
-# torch.manual_seed(42)
+from torch.utils.tensorboard import SummaryWriter
+
+
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
 
 # 定义Agent类
 class Agent:
@@ -68,7 +70,7 @@ class Agent:
 
 
 # 训练Agent
-def train_agent(agent, environment, num_episodes=10000):
+def train_agent(agent, environment, writer=None ,num_episodes=4000):
     #epoch
     for episode in range(num_episodes):
         state = environment.reset()
@@ -77,22 +79,29 @@ def train_agent(agent, environment, num_episodes=10000):
         loses = 0
         #惩罚过多就直接进入下一个循环
         while not done:
-            actions = agent.choose_action(state+[environment.step_count]+environment.bot_state[-1])
+            actions = agent.choose_action(state)#+[environment.step_count])#+environment.bot_state[-1])
             next_state, reward = environment.step(actions)
             total_reward += reward
-            lose = agent.train((state+[environment.step_count-1]+environment.bot_state[-2], [actions], [reward], next_state+[environment.step_count]+environment.bot_state[-1], [environment.check_stop()]))
+            # lose = agent.train((state+[environment.step_count-1]+environment.bot_state[-2], [actions], [reward], next_state+[environment.step_count]+environment.bot_state[-1], [environment.check_stop()]))
+            # lose = agent.train((state+[environment.step_count-1], [actions], [reward], next_state+[environment.step_count], [environment.check_stop()]))
+            lose = agent.train((state, [actions], [reward], next_state, [environment.check_stop()]))
             loses += lose
             state = next_state
             if environment.check_stop():
                 print(environment.bot_state)
                 done = True
         agent.update_target_net()
+
+        if writer is not None:
+            writer.add_scalar('reward-q', total_reward, episode)
+            writer.add_scalar('lose-q', loses, episode)
         print("Episode:", episode, "Total Reward:", total_reward, "loses:", lose)
 
 
 if __name__ == '__main__':
     env = BotEvironment.Environment()
-    agent = Agent(state_size=8, action_size=25)
+    agent = Agent(state_size=5, action_size=25)
 
+    writer = SummaryWriter('logs')
     # 训练Agent
-    train_agent(agent, env)
+    train_agent(agent, env, writer)

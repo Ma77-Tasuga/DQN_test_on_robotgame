@@ -33,8 +33,9 @@ class Environment:
         self.step_count = 1
         self.state = [0, 0, 0, 0, 1]  #第一步的格子情况
         self.bot_state = [[0, 3]]  # 初始状态：两个机器人的位置
-        self.obstacles = {1: [4], 2: [1, 4], 3: [1, 2], 4: [4], 5: [0, 3], 6: [1, 4], 7: [1, 2], 8: [3], 9: [0, 2],
-                          10: [4], 11: [0, 2], 12: [1, 4], 13: [1, 2], 14: [4], 15: [0, 2]}  # 障碍物方框
+        self.obstacles_1 = {1: [4], 2: [1], 3: [2], 4: [4], 5: [0, 3], 6: [1], 7: [2], 8: [3], 9: [0, 2],
+                            10: [4], 11: [0, 2], 12: [1], 13: [2], 14: [4], 15: [0, 2]}  # 障碍物方框
+        self.obstacles_2 = {2: [4], 3: [1], 6: [4], 7: [1], 12: [4], 13: [1]}
 
     def reset(self):
         self.bot_state = [[0, 3]]
@@ -50,10 +51,15 @@ class Environment:
 
     def list_render(self, col):
         block_list = [0 for _ in range(5)]
-        if col in self.obstacles:
-            obstacles_list = self.obstacles[col]
+        if col in self.obstacles_1:
+            obstacles_list = self.obstacles_1[col]
             for i in obstacles_list:
                 block_list[i] = 1
+
+        if col in self.obstacles_2:
+            obstacles_list = self.obstacles_2[col]
+            for i in obstacles_list:
+                block_list[i] = 2
         return block_list
 
     def step(self, actions):
@@ -74,6 +80,12 @@ class Environment:
             ckeck_obstacles = True
         if block_list[next_position[1]] == 1:
             rewards -= 10
+            ckeck_obstacles = True
+        if block_list[next_position[0]] == 2:
+            rewards -= 4
+            ckeck_obstacles = True
+        if block_list[next_position[1]] == 2:
+            rewards -= 4
             ckeck_obstacles = True
 
         if not ckeck_obstacles:
